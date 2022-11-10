@@ -21,7 +21,8 @@
   ],
   "scripts": {
     "test": "node_modules/.bin/eslint .",
-    "dev": "quasar dev"
+    "dev": "quasar dev",
+    "build": "quasar build"
   },
   "dependencies": {
     "@quasar/extras": "^1.10.4",
