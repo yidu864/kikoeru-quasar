@@ -1,24 +1,29 @@
 <template>
-    <q-card
-      id="draggable"
-      @mousedown="onCursorDown"
-      @mouseup="onCursorUp"
-      @touchstart="onCursorDown"
-      @touchend="onCursorUp"
+  <q-card
+    id="draggable"
+    @mousedown="onCursorDown"
+    @mouseup="onCursorUp"
+    @touchstart="onCursorDown"
+    @touchend="onCursorUp"
+  >
+    <div
+      id="lyricsBar"
+      class="text-center text-h6 text-bold ellipsis-2-lines text-purple q-mb-md absolute-bottom"
     >
-        <div id="lyricsBar" class="text-center text-h6 text-bold ellipsis-2-lines text-purple q-mb-md absolute-bottom">
-            <span id="lyric">
-              {{currentLyric}}
-            </span>
-        </div>
-    </q-card>
+      <span id="lyric">
+        {{ desktopLrc ? '' : currentLyric }}
+      </span>
+    </div>
+  </q-card>
 </template>
 
 <script>
 import { mapState } from 'vuex'
 
 const onCursorMove = (that) => (ev) => {
-  if (!that.beTouched) { return }
+  if (!that.beTouched) {
+    return
+  }
 
   // ev.preventDefault()
   const touch = that.getTouch(ev)
@@ -29,23 +34,20 @@ const onCursorMove = (that) => (ev) => {
 
   that.draggable.style.left = eleX + 'px'
   that.draggable.style.top = eleY + 'px'
-
 }
 
 export default {
   name: 'LyricsBar',
 
   computed: {
-    ...mapState('AudioPlayer', [
-      'currentLyric'
-    ]),
+    ...mapState('AudioPlayer', ['currentLyric', 'desktopLrc']),
 
     draggable() {
       return document.getElementById('draggable')
     }
   },
 
-  data () {
+  data() {
     return {
       beTouched: false,
 
@@ -60,7 +62,7 @@ export default {
      * @param {TouchEvent|MouseEvent} ev
      */
     getTouch(ev) {
-      return ev.touches ? ev.touches[0] : ev;
+      return ev.touches ? ev.touches[0] : ev
     },
 
     onCursorDown(ev) {
@@ -87,12 +89,12 @@ export default {
 </script>
 
 <style lang="scss">
-  .moveable-line {
-    background-color: transparent !important;
-  }
-  #lyricsBar {
-    background-color: rgba($grey-4, $alpha: 0.6);
-    min-width: 1vw;
-    position: absolute;
-  }
+.moveable-line {
+  background-color: transparent !important;
+}
+#lyricsBar {
+  background-color: rgba($grey-4, $alpha: 0.6);
+  min-width: 1vw;
+  position: absolute;
+}
 </style>

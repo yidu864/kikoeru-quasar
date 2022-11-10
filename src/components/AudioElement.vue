@@ -1,7 +1,15 @@
 <template>
   <vue-plyr
     ref="plyr"
-    :emit="['canplay', 'timeupdate', 'ended', 'seeked', 'playing', 'waiting', 'pause']"
+    :emit="[
+      'canplay',
+      'timeupdate',
+      'ended',
+      'seeked',
+      'playing',
+      'waiting',
+      'pause'
+    ]"
     @canplay="onCanplay()"
     @timeupdate="onTimeupdate()"
     @ended="onEnded()"
@@ -10,7 +18,7 @@
     @waiting="onWaiting()"
     @pause="onPause()"
   >
-    <audio crossorigin="anonymous" >
+    <audio crossorigin="anonymous">
       <source v-if="source" :src="source" />
     </audio>
   </vue-plyr>
@@ -28,17 +36,17 @@ export default {
 
   data() {
     return {
-      lrcObj: null,
-      lrcAvailable: false,
+      lrcObj: null
+      // lrcAvailable: false,
     }
   },
 
   computed: {
-    player () {
+    player() {
       return this.$refs.plyr.player
     },
 
-    source () {
+    source() {
       // 从 LocalStorage 中读取 token
       const token = this.$q.localStorage.getItem('jwt-token') || ''
       // New API
@@ -48,7 +56,16 @@ export default {
         // Fallback to be compatible with old backend
         return `/api/media/stream/${this.currentPlayingFile.hash}?token=${token}`
       } else {
-        return ""
+        return ''
+      }
+    },
+
+    lrcAvailable: {
+      get() {
+        return this.$store.state.AudioPlayer.lyricOk
+      },
+      set(flag) {
+        this.$store.commit('AudioPlayer/TOGGLE_LYRIC', flag)
       }
     },
 
@@ -67,13 +84,11 @@ export default {
       'forwardSeekMode'
     ]),
 
-    ...mapGetters('AudioPlayer', [
-      'currentPlayingFile'
-    ])
+    ...mapGetters('AudioPlayer', ['currentPlayingFile'])
   },
 
   watch: {
-    playing (flag) {
+    playing(flag) {
       if (this.player.duration) {
         // 缓冲至可播放状态
         flag ? this.player.play() : this.player.pause()
@@ -82,20 +97,20 @@ export default {
     },
 
     // watch source -> media.load() -> canPlay -> player.play()
-    source (url) {
+    source(url) {
       if (url) {
         // 加载新音频/视频文件
-        this.player.media.load();
-        this.loadLrcFile();
+        this.player.media.load()
+        this.loadLrcFile()
       }
     },
 
-    muted (flag) {
+    muted(flag) {
       // 切换静音状态
       this.player.muted = flag
     },
 
-    volume (val) {
+    volume(val) {
       // 屏蔽非法数值
       if (val < 0 || val > 1) {
         return
@@ -106,14 +121,14 @@ export default {
     },
     rewindSeekMode(rewind) {
       if (rewind) {
-        this.player.rewind(this.rewindSeekTime);
-        this.SET_REWIND_SEEK_MODE(false);
+        this.player.rewind(this.rewindSeekTime)
+        this.SET_REWIND_SEEK_MODE(false)
       }
     },
     forwardSeekMode(forward) {
       if (forward) {
-        this.player.forward(this.forwardSeekTime);
-        this.SET_FORWARD_SEEK_MODE(false);
+        this.player.forward(this.forwardSeekTime)
+        this.SET_FORWARD_SEEK_MODE(false)
       }
     }
   },
@@ -123,7 +138,6 @@ export default {
      * 当 外部暂停（线控暂停、软件切换）、用户控制暂停、seek 时会触发本事件
      */
     onPause() {
-      // console.log('onPause')
       this.playLrc(false)
       this.PAUSE()
     },
@@ -131,7 +145,6 @@ export default {
      * 当播放器真正开始播放时会触发本事件
      */
     onPlaying() {
-      // console.log('playing')
       this.playLrc(true)
       this.PLAY()
     },
@@ -139,7 +152,6 @@ export default {
      * 当播放器缓冲区空，被迫暂停加载时会触发本事件
      */
     onWaiting() {
-      // console.log('waiting')
       this.playLrc(false)
       this.PLAY()
     },
@@ -157,7 +169,7 @@ export default {
       'SET_FORWARD_SEEK_MODE'
     ]),
 
-    onCanplay () {
+    onCanplay() {
       // 缓冲至可播放状态时触发 (只有缓冲至可播放状态, 才能获取媒体文件的播放时长)
       this.SET_DURATION(this.player.duration)
 
@@ -167,16 +179,25 @@ export default {
       }
     },
 
-    onTimeupdate () {
+    onTimeupdate() {
       // 当目前的播放位置已更改时触发
       this.SET_CURRENT_TIME(this.player.currentTime)
       if (this.sleepMode && this.sleepTime) {
         const currentTime = new Date()
-        const currentHourStr = currentTime.getHours().toString().padStart(2, '0')
-        const currentMinuteStr = currentTime.getMinutes().toString().padStart(2, '0')
+        const currentHourStr = currentTime
+          .getHours()
+          .toString()
+          .padStart(2, '0')
+        const currentMinuteStr = currentTime
+          .getMinutes()
+          .toString()
+          .padStart(2, '0')
         const sleepHourStr = this.sleepTime.match(/\d+/g)[0]
         const sleepMinuteStr = this.sleepTime.match(/\d+/g)[1]
-        if (currentHourStr === sleepHourStr && currentMinuteStr === sleepMinuteStr) {
+        if (
+          currentHourStr === sleepHourStr &&
+          currentMinuteStr === sleepMinuteStr
+        ) {
           this.PAUSE()
           this.CLEAR_SLEEP_MODE()
           // Persist sleep mode settings
@@ -186,10 +207,10 @@ export default {
       }
     },
 
-    onEnded () {
+    onEnded() {
       // 当前文件播放结束时触发
       switch (this.playMode.name) {
-        case "all repeat":
+        case 'all repeat':
           // 循环播放
           if (this.queueIndex === this.queue.length - 1) {
             this.SET_TRACK(0)
@@ -197,15 +218,15 @@ export default {
             this.NEXT_TRACK()
           }
           break
-        case "repeat once":
+        case 'repeat once':
           // 单曲循环
           this.player.currentTime = 0
           this.player.play()
           this.PLAY()
           break
-        case "shuffle": {
+        case 'shuffle': {
           // 随机播放
-          const index = Math.floor(Math.random()*this.queue.length)
+          const index = Math.floor(Math.random() * this.queue.length)
           this.SET_TRACK(index)
           if (index === this.queueIndex) {
             this.player.currentTime = 0
@@ -231,69 +252,71 @@ export default {
       // }
     },
 
-
-    playLrc (playStatus) {
+    playLrc(playStatus) {
       if (this.lrcAvailable) {
         if (playStatus) {
-          this.lrcObj.play(this.player.currentTime * 1000);
+          this.lrcObj.play(this.player.currentTime * 1000)
         } else {
-          this.lrcObj.pause();
+          this.lrcObj.pause()
         }
       }
     },
 
-    initLrcObj () {
-        this.lrcObj = new Lyric({
-          onPlay: (line, text) => {
-            this.SET_CURRENT_LYRIC(text);
-          },
-        })
+    initLrcObj() {
+      this.lrcObj = new Lyric({
+        onPlay: (line, text) => {
+          this.SET_CURRENT_LYRIC(text)
+        }
+      })
     },
 
-    loadLrcFile () {
-      const token = this.$q.localStorage.getItem('jwt-token') || '';
-      const fileHash = this.queue[this.queueIndex].hash;
-      const url = `/api/media/check-lrc/${fileHash}?token=${token}`;
+    loadLrcFile() {
+      const token = this.$q.localStorage.getItem('jwt-token') || ''
+      const fileHash = this.queue[this.queueIndex].hash
+      const url = `/api/media/check-lrc/${fileHash}?token=${token}`
 
-      this.$axios.get(url)
+      this.$axios
+        .get(url)
         .then((response) => {
           if (response.data.result) {
             // 有lrc歌词文件
-            this.lrcAvailable = true;
-            console.log('读入歌词');
-            const lrcUrl = `/api/media/stream/${response.data.hash}?token=${token}`;
-            this.$axios.get(lrcUrl)
-              .then(response => {
-                console.log('歌词读入成功');
-                this.lrcObj.setLyric(response.data);
-                this.lrcObj.play(this.player.currentTime * 1000);
-              });
+            this.lrcAvailable = true
+            console.log('读入歌词')
+            const lrcUrl = `/api/media/stream/${response.data.hash}?token=${token}`
+            this.$axios.get(lrcUrl).then((response) => {
+              console.log('歌词读入成功')
+              this.lrcObj.setLyric(response.data)
+              this.lrcObj.play(this.player.currentTime * 1000)
+            })
           } else {
             // 无歌词文件
-            this.lrcAvailable = false;
-            this.lrcObj.setLyric('');
-            this.SET_CURRENT_LYRIC('');
+            this.lrcAvailable = false
+            this.lrcObj.setLyric('')
+            this.SET_CURRENT_LYRIC('')
           }
         })
         .catch((error) => {
           if (error.response) {
             // 请求已发出，但服务器响应的状态码不在 2xx 范围内
             if (error.response.status !== 401) {
-              this.showErrNotif(error.response.data.error || `${error.response.status} ${error.response.statusText}`);
+              this.showErrNotif(
+                error.response.data.error ||
+                  `${error.response.status} ${error.response.statusText}`
+              )
             }
           } else {
-            this.showErrNotif(error.message || error);
+            this.showErrNotif(error.message || error)
           }
         })
-    },
+    }
   },
 
-  mounted () {
+  mounted() {
     // 初始化音量
-    this.SET_VOLUME(this.player.volume);
-    this.initLrcObj();
+    this.SET_VOLUME(this.player.volume)
+    this.initLrcObj()
     if (this.source) {
-      this.loadLrcFile();
+      this.loadLrcFile()
     }
   }
 }

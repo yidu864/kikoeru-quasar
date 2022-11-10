@@ -4,7 +4,7 @@ export default function () {
     playing: false, // 播放状态 (true/false)
     currentTime: 0, // 单位: 秒
     duration: 0,
-    source: "",
+    source: '',
     queue: [
       // list of tracks. object format:
       /*
@@ -16,11 +16,14 @@ export default function () {
     queueIndex: 0, // which track in the queue is currently selected
     playMode: {
       id: 0,
-      name: "order"
+      name: 'order'
     }, // 顺序播放("order"), 循环播放("all repeat"), 单曲循环("repeat once") or 随机播放("shuffle")
     muted: false,
     volume: 0, // 音量 (0.0-1.0)
+    lyricOk: false,
     currentLyric: '',
+    // 桌面字幕
+    desktopLrc: false,
     sleepTime: null,
     sleepMode: false,
     rewindSeekTime: 5,

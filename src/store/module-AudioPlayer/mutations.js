@@ -1,22 +1,22 @@
 const mutations = {
-  TOGGLE_HIDE (state) {
+  TOGGLE_HIDE(state) {
     state.hide = !state.hide
   },
 
-  PLAY (state) {
+  PLAY(state) {
     state.playing = true
   },
-  PAUSE (state) {
+  PAUSE(state) {
     state.playing = false
   },
-  TOGGLE_PLAYING (state) {
+  TOGGLE_PLAYING(state) {
     state.playing = !state.playing
   },
 
   // Play a specific file from the queue.
   SET_TRACK: (state, index) => {
     if (index >= state.queue.length || index < 0) {
-      return; // Invalid index, bail.
+      return // Invalid index, bail.
     }
 
     state.playing = true
@@ -37,13 +37,13 @@ const mutations = {
     }
   },
 
-  SET_QUEUE (state, payload) {
+  SET_QUEUE(state, payload) {
     state.queue = payload.queue
     state.queueIndex = payload.index
 
     if (payload.resetPlaying) {
       state.playing = true
-    }    
+    }
   },
   EMPTY_QUEUE: (state) => {
     state.playing = false
@@ -61,43 +61,43 @@ const mutations = {
       state.queueIndex = 0
     } else if (index < state.queueIndex) {
       state.queueIndex -= 1
-    } 
+    }
   },
 
-
-  SET_DURATION (state, second) {
+  SET_DURATION(state, second) {
     state.duration = second
   },
 
-  SET_CURRENT_TIME (state, second) {
+  SET_CURRENT_TIME(state, second) {
     state.currentTime = second
   },
 
   // Add a file after the current playing item in the queue.
   PLAY_NEXT: (state, file) => {
-    state.queue.splice(state.queueIndex + 1, 0, file);
+    state.queue.splice(state.queueIndex + 1, 0, file)
   },
 
   CHANGE_PLAY_MODE: (state) => {
     const playModes = [
       {
         id: 0,
-        name: "order"
+        name: 'order'
       },
       {
         id: 1,
-        name: "all repeat"
+        name: 'all repeat'
       },
       {
         id: 2,
-        name: "repeat once"
+        name: 'repeat once'
       },
       {
         id: 3,
-        name: "shuffle"
+        name: 'shuffle'
       }
     ]
-    const index = (state.playMode.id >= playModes.length - 1) ? 0 : (state.playMode.id + 1)
+    const index =
+      state.playMode.id >= playModes.length - 1 ? 0 : state.playMode.id + 1
 
     state.playMode = playModes[index]
   },
@@ -135,6 +135,18 @@ const mutations = {
   CLEAR_SLEEP_MODE: (state) => {
     state.sleepTime = null
     state.sleepMode = false
+  },
+
+  TOGGLE_LYRIC: (state, flag) => {
+    state.lyricOk = flag
+  },
+  // 切换桌面字幕
+  TOGGLE_DESKTOPLRC: (state, flag) => {
+    if (typeof flag === 'boolean') {
+      state.desktopLrc = flag
+    } else {
+      state.desktopLrc = !state.desktopLrc
+    }
   }
 }
 
