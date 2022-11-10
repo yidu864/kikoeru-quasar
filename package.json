@@ -20,7 +20,8 @@
     "kikoeru"
   ],
   "scripts": {
-    "test": "node_modules/.bin/eslint ."
+    "test": "node_modules/.bin/eslint .",
+    "dev": "quasar dev"
   },
   "dependencies": {
     "@quasar/extras": "^1.10.4",
